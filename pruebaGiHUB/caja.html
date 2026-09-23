@@ -2,12 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>01 - Caja</title>
+    <title>01 - Caja (Práctica 3)</title>
 </head>
 <body>
 
-    <h1>Caja</h1>
+    <h1>Caja de Cafetería</h1>
 
+    <!--agregar pedido -->
     <p>
         <label>Nombre del Pedido:</label><br>
         <input type="text" id="nombrePedido">
@@ -20,17 +21,29 @@
 
     <button onclick="agregarPedido()">Agregar Pedido</button>
 
+    <hr>
+
+    <!-- Filtro / Buscador de pedidos -->
+    <p>
+        <label>Buscar / Filtrar Pedidos:</label><br>
+        <input type="text" id="filtroPedido" oninput="filtrarPedidos()" placeholder="Escribe para buscar...">
+    </p>
+
     <h3>Lista de Pedidos:</h3>
     <ul id="listaPedidos"></ul>
 
-    <h3>Total Acumulado: $<span id="totalAcumulado">0</span></h3>
+    <hr>
+
+    <!-- Desglose de cálculos requeridos -->
+    <h3>Resumen de Cuenta:</h3>
+    <p>Subtotal: $<span id="subtotal">0.00</span></p>
+    <p>IVA (16%): $<span id="iva">0.00</span></p>
+    <h3>Total: $<span id="total">0.00</span></h3>
 
     <script>
-        // Variables y arrays
+       
         const listaPedidos = [];
-        let totalAcumulado = 0;
 
-        // agregarPedido()
         function agregarPedido() {
             let inputNombre = document.getElementById("nombrePedido").value;
             let inputPrecio = Number(document.getElementById("precioPedido").value);
@@ -40,33 +53,57 @@
                 return;
             }
 
-            // array
+           
             listaPedidos.push({
                 nombre: inputNombre,
                 precio: inputPrecio
             });
 
-            //total
-            totalAcumulado += inputPrecio;
+            mostrarPedidos(listaPedidos);
 
-            // Actualizar
-            mostrarPedidos();
-            
             document.getElementById("nombrePedido").value = "";
             document.getElementById("precioPedido").value = "";
         }
 
-        function mostrarPedidos() {
+        // Función para mostrar pedidos y calcular valores
+        function mostrarPedidos(pedidosAMostrar) {
             let ul = document.getElementById("listaPedidos");
             ul.innerHTML = "";
 
-            for (let i = 0; i < listaPedidos.length; i++) {
+            // Uso de Destructuring al recorrer los elementos
+            pedidosAMostrar.forEach(producto => {
+                const { nombre, precio } = producto; // DESTRUCTURING
                 let li = document.createElement("li");
-                li.textContent = listaPedidos[i].nombre + " - $" + listaPedidos[i].precio;
+                li.textContent = `${nombre} - $${precio.toFixed(2)}`;
                 ul.appendChild(li);
-            }
+            });
 
-            document.getElementById("totalAcumulado").textContent = totalAcumulado;
+            // Uso de REDUCE para calcular el Subtotal
+            const subtotalCalculado = listaPedidos.reduce((acumulador, producto) => {
+                const { precio } = producto; // DESTRUCTURING en reduce
+                return acumulador + precio;
+            }, 0);
+
+            // Cálculo del IVA (16%) y Total
+            const ivaCalculado = subtotalCalculado * 0.16;
+            const totalCalculado = subtotalCalculado + ivaCalculado;
+
+            // Actualizar el DOM
+            document.getElementById("subtotal").textContent = subtotalCalculado.toFixed(2);
+            document.getElementById("iva").textContent = ivaCalculado.toFixed(2);
+            document.getElementById("total").textContent = totalCalculado.toFixed(2);
+        }
+
+        // Función de filtro / búsqueda
+        function filtrarPedidos() {
+            const textoBusqueda = document.getElementById("filtroPedido").value.toLowerCase();
+            
+            const pedidosFiltrados = listaPedidos.filter(producto => {
+                const { nombre } = producto; // DESTRUCTURING
+                return nombre.toLowerCase().includes(textoBusqueda);
+            });
+
+            mostrarPedidos(pedidosFiltrados);
         }
     </script>
 

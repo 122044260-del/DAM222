@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>01 - Caja</title>
+</head>
+<body>
+
+    <h1>Caja</h1>
+
+    <p>
+        <label>Nombre del Pedido:</label><br>
+        <input type="text" id="nombrePedido">
+    </p>
+
+    <p>
+        <label>Precio:</label><br>
+        <input type="number" id="precioPedido">
+    </p>
+
+    <button onclick="agregarPedido()">Agregar Pedido</button>
+
+    <h3>Lista de Pedidos:</h3>
+    <ul id="listaPedidos"></ul>
+
+    <h3>Total Acumulado: $<span id="totalAcumulado">0</span></h3>
+
+    <script>
+        // Variables y arrays
+        const listaPedidos = [];
+        let totalAcumulado = 0;
+
+        // agregarPedido()
+        function agregarPedido() {
+            let inputNombre = document.getElementById("nombrePedido").value;
+            let inputPrecio = Number(document.getElementById("precioPedido").value);
+
+            if (inputNombre === "" || inputPrecio <= 0) {
+                alert("Ingresa un nombre y precio válido");
+                return;
+            }
+
+            // array
+            listaPedidos.push({
+                nombre: inputNombre,
+                precio: inputPrecio
+            });
+
+            //total
+            totalAcumulado += inputPrecio;
+
+            // Actualizar
+            mostrarPedidos();
+            
+            document.getElementById("nombrePedido").value = "";
+            document.getElementById("precioPedido").value = "";
+        }
+
+        function mostrarPedidos() {
+            let ul = document.getElementById("listaPedidos");
+            ul.innerHTML = "";
+
+            for (let i = 0; i < listaPedidos.length; i++) {
+                let li = document.createElement("li");
+                li.textContent = listaPedidos[i].nombre + " - $" + listaPedidos[i].precio;
+                ul.appendChild(li);
+            }
+
+            document.getElementById("totalAcumulado").textContent = totalAcumulado;
+        }
+    </script>
+
+</body>
+</html>

@@ -21,7 +21,7 @@
             <h2>Cuentas y Cobro</h2>
             <p>Resumen de pedidos y total a cobrar por comanda</p>
             <div id="caja-pedidos"></div>
-        </section>
+        </sectio >
     </main>
 
     <script>
@@ -59,7 +59,7 @@
         return total;
     }
 
-    // Devuelve el mensaje que se muestra según el estado
+    // Devuelve 
     function mensajeEstado(estado) {
         if (estado == 'pendiente') {
             return 'Tu pedido fue recibido';
@@ -80,7 +80,7 @@
         }
     }
 
-    // Un pedido ya terminado no se puede cambiar
+    //  no se puede cambiar
     function estaCerrado(estado) {
         if (estado == 'entregado') {
             return true;
@@ -91,7 +91,7 @@
         return false;
     }
 
-    // Dibuja todos los pedidos en pantalla
+    // Dibuja todos los pedidos 
     function renderOrders() {
         var contenedor = document.getElementById('caja-pedidos');
         var pedidos = getOrders();
@@ -172,7 +172,7 @@
         renderOrders();
     }
 
-    // Pone los eventos de los tres botones
+    //  tres botones
     function activarBotones() {
         var botonesCobrar = document.querySelectorAll('.btn-cobrar');
         var botonesFalta = document.querySelectorAll('.btn-falta');
@@ -198,7 +198,7 @@
         }
     }
 
-    // Simula el pedido: va cambiando de estado solo
+    // Simula el pedido
     function simularPedido(id) {
         setTimeout(function () {
             cambiarEstado(id, 'preparando');
@@ -217,7 +217,7 @@
         }, 12000);
     }
 
-    // Cuando abre la pagina
+    // pagina
     document.addEventListener('DOMContentLoaded', function () {
         renderOrders();
     });

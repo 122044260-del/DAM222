@@ -2,109 +2,227 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>01 - Caja (Práctica 3)</title>
+    <title>Coffe Shop | Caja</title>
+    <link rel="stylesheet" href="src/css/styles.css">
 </head>
 <body>
 
-    <h1>Caja de Cafetería</h1>
+    <header class="barra">
+        <h1>Coffe Shop - Caja</h1>
+        <nav class="navegacion">
+            <a href="index.html">Cliente</a>
+            <a href="caja.html" class="activo">Caja</a>
+            <a href="cocina.html">Cocina</a>
+        </nav>
+    </header>
 
-    <!--agregar pedido -->
-    <p>
-        <label>Nombre del Pedido:</label><br>
-        <input type="text" id="nombrePedido">
-    </p>
-
-    <p>
-        <label>Precio:</label><br>
-        <input type="number" id="precioPedido">
-    </p>
-
-    <button onclick="agregarPedido()">Agregar Pedido</button>
-
-    <hr>
-
-    <!-- Filtro / Buscador de pedidos -->
-    <p>
-        <label>Buscar / Filtrar Pedidos:</label><br>
-        <input type="text" id="filtroPedido" oninput="filtrarPedidos()" placeholder="Escribe para buscar...">
-    </p>
-
-    <h3>Lista de Pedidos:</h3>
-    <ul id="listaPedidos"></ul>
-
-    <hr>
-
-    <!-- Desglose de cálculos requeridos -->
-    <h3>Resumen de Cuenta:</h3>
-    <p>Subtotal: $<span id="subtotal">0.00</span></p>
-    <p>IVA (16%): $<span id="iva">0.00</span></p>
-    <h3>Total: $<span id="total">0.00</span></h3>
+    <main class="contenedor">
+        <section class="panel-modulo">
+            <h2>Cuentas y Cobro</h2>
+            <p>Resumen de pedidos y total a cobrar por comanda</p>
+            <div id="caja-pedidos"></div>
+        </section>
+    </main>
 
     <script>
-       
-        const listaPedidos = [];
+    // Guarda los pedidos en el navegador
+    function getOrders() {
+        var datos = localStorage.getItem('coffeeshop-orders');
+        if (datos == null) {
+            return [];
+        }
+        return JSON.parse(datos);
+    }
 
-        function agregarPedido() {
-            let inputNombre = document.getElementById("nombrePedido").value;
-            let inputPrecio = Number(document.getElementById("precioPedido").value);
+    function saveOrders(lista) {
+        localStorage.setItem('coffeeshop-orders', JSON.stringify(lista));
+    }
 
-            if (inputNombre === "" || inputPrecio <= 0) {
-                alert("Ingresa un nombre y precio válido");
-                return;
+    // Da formato al precio
+    function formatPrice(precio) {
+        return '$' + precio + ' MXN';
+    }
+
+    // Suma todos los precios de un pedido
+    function calculateTotal(productos) {
+        var total = 0;
+        var i;
+
+        for (i = 0; i < productos.length; i++) {
+            if (productos[i].finalPrice != undefined) {
+                total = total + productos[i].finalPrice;
+            } else {
+                total = total + productos[i].price;
+            }
+        }
+
+        return total;
+    }
+
+    // Devuelve el mensaje que se muestra según el estado
+    function mensajeEstado(estado) {
+        if (estado == 'pendiente') {
+            return 'Tu pedido fue recibido';
+        } else if (estado == 'preparando') {
+            return 'Tu pedido se esta preparando';
+        } else if (estado == 'cocinando') {
+            return 'Tu pedido se esta cocinando';
+        } else if (estado == 'listo') {
+            return 'Tu pedido esta listo';
+        } else if (estado == 'entregado') {
+            return 'Tu pedido fue entregado';
+        } else if (estado == 'cancelado') {
+            return 'Tu pedido fue cancelado';
+        } else if (estado == 'faltaProducto') {
+            return 'Falta un producto de tu pedido';
+        } else {
+            return estado;
+        }
+    }
+
+    // Un pedido ya terminado no se puede cambiar
+    function estaCerrado(estado) {
+        if (estado == 'entregado') {
+            return true;
+        }
+        if (estado == 'cancelado') {
+            return true;
+        }
+        return false;
+    }
+
+    // Dibuja todos los pedidos en pantalla
+    function renderOrders() {
+        var contenedor = document.getElementById('caja-pedidos');
+        var pedidos = getOrders();
+        var i;
+        var j;
+        var pedido;
+        var producto;
+        var html;
+        var total;
+
+        contenedor.innerHTML = '';
+
+        if (pedidos.length == 0) {
+            contenedor.innerHTML = '<p>No hay pedidos registrados.</p>';
+            return;
+        }
+
+        for (i = 0; i < pedidos.length; i++) {
+            pedido = pedidos[i];
+            total = calculateTotal(pedido.productos);
+
+            // Lista de productos
+            html = '';
+            for (j = 0; j < pedido.productos.length; j++) {
+                producto = pedido.productos[j];
+
+                if (producto.finalPrice != undefined) {
+                    html = html + '<li>' + producto.name + ' - ' +
+                        formatPrice(producto.finalPrice) + '</li>';
+                } else {
+                    html = html + '<li>' + producto.name + ' - ' +
+                        formatPrice(producto.price) + '</li>';
+                }
             }
 
-           
-            listaPedidos.push({
-                nombre: inputNombre,
-                precio: inputPrecio
-            });
+            var tarjeta = document.createElement('article');
+            tarjeta.className = 'pedido-caja';
 
-            mostrarPedidos(listaPedidos);
+            tarjeta.innerHTML =
+                '<h3>Pedido #' + pedido.id + '</h3>' +
+                '<p>Estado: ' + pedido.estado + '</p>' +
+                '<p>' + mensajeEstado(pedido.estado) + '</p>' +
+                '<ul>' + html + '</ul>' +
+                '<p>Total: ' + formatPrice(total) + '</p>' +
+                '<button class="btn-cobrar" data-id="' + pedido.id + '">Cobrar</button>' +
+                '<button class="btn-falta" data-id="' + pedido.id + '">Falta producto</button>' +
+                '<button class="btn-cancelar" data-id="' + pedido.id + '">Cancelar</button>';
 
-            document.getElementById("nombrePedido").value = "";
-            document.getElementById("precioPedido").value = "";
+            contenedor.appendChild(tarjeta);
         }
 
-        // Función para mostrar pedidos y calcular valores
-        function mostrarPedidos(pedidosAMostrar) {
-            let ul = document.getElementById("listaPedidos");
-            ul.innerHTML = "";
+        activarBotones();
+    }
 
-            // Uso de Destructuring al recorrer los elementos
-            pedidosAMostrar.forEach(producto => {
-                const { nombre, precio } = producto; // DESTRUCTURING
-                let li = document.createElement("li");
-                li.textContent = `${nombre} - $${precio.toFixed(2)}`;
-                ul.appendChild(li);
-            });
+    // Cambia el estado de un pedido
+    function cambiarEstado(id, nuevoEstado) {
+        var pedidos = getOrders();
+        var i;
+        var pedido = null;
 
-            // Uso de REDUCE para calcular el Subtotal
-            const subtotalCalculado = listaPedidos.reduce((acumulador, producto) => {
-                const { precio } = producto; // DESTRUCTURING en reduce
-                return acumulador + precio;
-            }, 0);
-
-            // Cálculo del IVA (16%) y Total
-            const ivaCalculado = subtotalCalculado * 0.16;
-            const totalCalculado = subtotalCalculado + ivaCalculado;
-
-            // Actualizar el DOM
-            document.getElementById("subtotal").textContent = subtotalCalculado.toFixed(2);
-            document.getElementById("iva").textContent = ivaCalculado.toFixed(2);
-            document.getElementById("total").textContent = totalCalculado.toFixed(2);
+        for (i = 0; i < pedidos.length; i++) {
+            if (pedidos[i].id == id) {
+                pedido = pedidos[i];
+            }
         }
 
-        // Función de filtro / búsqueda
-        function filtrarPedidos() {
-            const textoBusqueda = document.getElementById("filtroPedido").value.toLowerCase();
-            
-            const pedidosFiltrados = listaPedidos.filter(producto => {
-                const { nombre } = producto; // DESTRUCTURING
-                return nombre.toLowerCase().includes(textoBusqueda);
-            });
-
-            mostrarPedidos(pedidosFiltrados);
+        if (pedido == null) {
+            return;
         }
+
+        // Si ya termino, no se cambia
+        if (estaCerrado(pedido.estado)) {
+            return;
+        }
+
+        pedido.estado = nuevoEstado;
+        saveOrders(pedidos);
+        renderOrders();
+    }
+
+    // Pone los eventos de los tres botones
+    function activarBotones() {
+        var botonesCobrar = document.querySelectorAll('.btn-cobrar');
+        var botonesFalta = document.querySelectorAll('.btn-falta');
+        var botonesCancelar = document.querySelectorAll('.btn-cancelar');
+        var i;
+
+        for (i = 0; i < botonesCobrar.length; i++) {
+            botonesCobrar[i].onclick = function () {
+                cambiarEstado(Number(this.dataset.id), 'entregado');
+            };
+        }
+
+        for (i = 0; i < botonesFalta.length; i++) {
+            botonesFalta[i].onclick = function () {
+                cambiarEstado(Number(this.dataset.id), 'faltaProducto');
+            };
+        }
+
+        for (i = 0; i < botonesCancelar.length; i++) {
+            botonesCancelar[i].onclick = function () {
+                cambiarEstado(Number(this.dataset.id), 'cancelado');
+            };
+        }
+    }
+
+    // Simula el pedido: va cambiando de estado solo
+    function simularPedido(id) {
+        setTimeout(function () {
+            cambiarEstado(id, 'preparando');
+        }, 3000);
+
+        setTimeout(function () {
+            cambiarEstado(id, 'cocinando');
+        }, 6000);
+
+        setTimeout(function () {
+            cambiarEstado(id, 'listo');
+        }, 9000);
+
+        setTimeout(function () {
+            cambiarEstado(id, 'entregado');
+        }, 12000);
+    }
+
+    // Cuando abre la pagina
+    document.addEventListener('DOMContentLoaded', function () {
+        renderOrders();
+    });
+
+    window.simularPedido = simularPedido;
     </script>
 
 </body>

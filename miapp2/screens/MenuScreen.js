@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Tarjetas from './Tarjetas';
 import SafeScreen from './SafeScreen';
 import Pressable from './PresableSwitch';
+import SectionListScreen from './SectionListScreen';
 
 /* 2. Zona main */
 export default function MenuScreen() {
@@ -21,8 +22,8 @@ export default function MenuScreen() {
             return <Pressable></Pressable>
         case 'textinput':
             return <TextInput></TextInput>
-        case 'flatList': 
-            return <FlatList></FlatList>
+        case 'flatList':
+            return <SectionListScreen></SectionListScreen>
         case 'menu':
             default: 
 

@@ -1,7 +1,7 @@
 /* 1. Zona de importaciones */
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import MenuScreen from '../screens/MenuScreen';
+import MenuScreen from './screens/MenuScreen';
 
 /* 2. Zona main */
 export default function App() {

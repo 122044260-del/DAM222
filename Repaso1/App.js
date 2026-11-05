@@ -1,6 +1,6 @@
 import React from 'react';
-import RegistroScreen from './screens/RegistroScreen';
+import SectionListScreen from './screens/SectionListScreen';
 
 export default function App() {
-  return <RegistroScreen />;
+  return <SectionListScreen />;
 }

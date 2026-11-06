@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, FlatList, SectionList } from 'react-native';
 
 const datosFlat = [
-  { id: '1', nombre: 'Juan' },
-  { id: '2', nombre: 'Maria' },
-  { id: '3', nombre: 'Pedro' },
-  { id: '4', nombre: 'Emilio' },
+  { id: '1', nombre: 'ALAN' },
+  { id: '2', nombre: 'ALAN' },
+  { id: '3', nombre: 'ALAN' },
+  { id: '4', nombre: 'ALAN' },
 ];
 
 const datosSection = [

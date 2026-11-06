@@ -1,2 +1,2 @@
 # DAM22
-reopo para documentacion
+repo para documentación
